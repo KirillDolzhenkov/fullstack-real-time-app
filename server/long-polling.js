@@ -14,18 +14,24 @@ const app = express();
 
 //4. Добавляем cors middleware
 app.use(cors());
+//подключаем парсер json
+app.use(express.json());
 
 //5. endpoints
-app.get('get-messages',(req,res)=>{
-    emitter.once('new-messages',message => { //Подписываемся на событие
-        res.json({message}) //Возвращаем сообщение
-    })
-})
+// Получение сообщений через long-polling
+app.get('/get-messages', (req, res) => {
+    emitter.once('new-messages', message => {
+        res.json(message); // Возвращаем сообщение
+    });
+});
 
-app.post('new-messages',(req,res)=>{
-    const {message} = req.body; //Достаем сообщение из тела запроса
-    emitter.emit('new-messages',message) //Вызываем событие и передаем ему сообщение
+// Отправка нового сообщения
+app.post('/new-messages', (req, res) => {
+    const { message, id } = req.body; // Достаем сообщение и id из тела запроса
+    const newMessage = { message, id }; // Формируем объект нового сообщения
+    emitter.emit('new-messages', newMessage); // Эмитим событие с новым сообщением
     res.status(200) //Возвращаем статус 200
+    res.end()
 })
 
 //3. Создаем экземпляр приложения и скажем ему прослушивать порт 5000
