@@ -33,13 +33,13 @@ export const LongPulling = () => {
                 return isDuplicate ? prev : [data, ...prev];
             });
 
-            await subscribe(isSubscribed)
+            await subscribe(isSubscribed) // Рекурсивный вызов для продолжения long polling
         } catch (e) {
             setTimeout(() => {
                 if (isSubscribed) {
                     subscribe(isSubscribed);
                 }
-            }, 500)
+            }, 500) // Повторить попытку через 500 мс, если подписка всё ещё активна
         }
     };
 
