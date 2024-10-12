@@ -1,12 +1,12 @@
 import './App.css'
-import {LongPulling} from "@/components/longPulling";
+import {LongPolling} from "@/components/longPolling";
 
 
 function App() {
 
   return (
     <>
-      <LongPulling/>
+      <LongPolling/>
     </>
   )
 }

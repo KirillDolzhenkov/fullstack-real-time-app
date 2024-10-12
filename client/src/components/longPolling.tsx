@@ -8,7 +8,7 @@ interface iMessages {
 
 type Messages = iMessages[];
 
-export const LongPulling = () => {
+export const LongPolling = () => {
     const [messages, setMessages] = useState<Messages>([]);
     const [messageValue, setMessageValue] = useState<string>("");
 
