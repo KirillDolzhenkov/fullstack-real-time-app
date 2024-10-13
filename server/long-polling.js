@@ -20,8 +20,17 @@ app.use(express.json());
 //5. endpoints
 // Получение сообщений через long-polling
 app.get('/get-messages', (req, res) => {
-    emitter.once('new-messages', message => {
+    const messageListener = (message) => {
         res.json(message); // Возвращаем сообщение
+        res.end();
+    };
+
+    // Подписываемся на событие
+    emitter.once('new-messages', messageListener);
+
+    // Если соединение завершено до того, как отправлено сообщение
+    req.on('close', () => {
+        emitter.removeListener('new-messages', messageListener); // Удаляем слушатель
     });
 });
 
@@ -30,7 +39,7 @@ app.post('/new-messages', (req, res) => {
     const { message, id } = req.body; // Достаем сообщение и id из тела запроса
     const newMessage = { message, id }; // Формируем объект нового сообщения
     emitter.emit('new-messages', newMessage); // Эмитим событие с новым сообщением
-    res.status(200) //Возвращаем статус 200
+    res.sendStatus(200) //Возвращаем статус 200
     res.end()
 })
 

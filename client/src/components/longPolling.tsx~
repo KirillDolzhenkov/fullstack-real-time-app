@@ -37,7 +37,7 @@ export const LongPolling = () => {
                     'Cache-Control': 'no-cache',
                     'Pragma': 'no-cache',
                     'Expires': '0',
-                },
+                }, 
             })
 
             // Фильтруем дубликаты сообщений
