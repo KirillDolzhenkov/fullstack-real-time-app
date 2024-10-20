@@ -67,7 +67,7 @@ export const LongPolling = () => {
         };
 
         try {
-            await axios.post(`${API_URL}/new-messages`, newMessage);
+            await axios.post("http://localhost:5000/new-messages", newMessage);
             setMessageValue(""); // Очищаем input после отправки
         } catch (error) {
             console.error("Failed to send message", error);
