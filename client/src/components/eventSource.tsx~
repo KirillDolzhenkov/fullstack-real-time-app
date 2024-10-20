@@ -1,6 +1,17 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
 import axios from "axios";
 
+interface EventSource {
+    new (url: string, eventSourceInitDict?: EventSourceInit): EventSource;
+    readonly url: string;
+    readonly readyState: number;
+    readonly withCredentials: boolean;
+    close(): void;
+    onopen: ((this: EventSource, ev: Event) => any) | null;
+    onmessage: ((this: EventSource, ev: MessageEvent) => any) | null;
+    onerror: ((this: EventSource, ev: Event) => any) | null;
+}
+
 interface iMessages {
     id: number;
     message: string;
@@ -17,10 +28,10 @@ const HEADERS = {
 const RETRY_DELAY = 5000;
 const API_URL = 'http://localhost:5000';
 
-export const LongPolling = () => {
+export const EventSource = () => {
     const [messages, setMessages] = useState<Messages>([]);
     const [messageValue, setMessageValue] = useState<string>("");
-    const [isMounted, setIsMounted] = useState(true); // Для предотвращения обновления состояния после размонтирования компонента
+    const [isMounted, setIsMounted] = useState(true); //Для предотвращения обновления состояния после размонтирования компонента
 
     useEffect(() => {
         fetchMessages()
@@ -30,22 +41,26 @@ export const LongPolling = () => {
         }
     }, []);
 
-    const fetchMessages  = async () =>{
-        try{
-            const {data} = await axios.get(`${API_URL}/get-messages`, {headers: HEADERS});
+    const fetchMessages  = async () => {
+        const eventSource = new window.EventSource(`${API_URL}/connect`);
 
-            if (isMounted) {
-                setMessages(prevMessages => [...prevMessages, data]);
-                setTimeout(fetchMessages, 0); // Повторный вызов через 0 мс
-            }
+        eventSource.onopen = () => {
+            console.log('Connection to server opened');
+        };
 
-        } catch (e){
+        eventSource.onmessage = (event: MessageEvent) => {
+            if (!isMounted) return; // Проверка флага перед обновлением состояния
+            const newMessage = JSON.parse(event.data);
+            console.log('New message received:', newMessage);
+            setMessages(prevMessages => [...prevMessages, newMessage]);
+        };
+
+        eventSource.onerror = (e: Event) => {
             console.log('Failed to fetch messages', e);
+            eventSource.close(); // Закрываем соединение при ошибке
 
-            if (isMounted) {
-                setTimeout(fetchMessages, RETRY_DELAY); // Повторный вызов через RETRY_DELAY мс
-            }
-        }
+            setTimeout(fetchMessages, RETRY_DELAY); // Повторная попытка через RETRY_DELAY мс
+        };
     }
 
     const onMessageChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -67,7 +82,7 @@ export const LongPolling = () => {
         };
 
         try {
-            await axios.post(`${API_URL}/new-messages`, newMessage);
+            await axios.post("http://localhost:5000/new-messages", newMessage);
             setMessageValue(""); // Очищаем input после отправки
         } catch (error) {
             console.error("Failed to send message", error);
