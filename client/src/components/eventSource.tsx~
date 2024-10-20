@@ -19,11 +19,6 @@ interface iMessages {
 
 type Messages = iMessages[];
 
-const HEADERS = {
-    'Cache-Control': 'no-cache',
-    'Pragma': 'no-cache',
-    'Expires': '0',
-}
 
 const RETRY_DELAY = 5000;
 const API_URL = 'http://localhost:5000';
