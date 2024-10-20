@@ -8,53 +8,45 @@ interface iMessages {
 
 type Messages = iMessages[];
 
-const RETRY_DELAY = 500;
+const HEADERS = {
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache',
+    'Expires': '0',
+}
+
+const RETRY_DELAY = 5000;
+const API_URL = 'http://localhost:5000';
 
 export const LongPolling = () => {
     const [messages, setMessages] = useState<Messages>([]);
     const [messageValue, setMessageValue] = useState<string>("");
+    const [isMounted, setIsMounted] = useState(true); //Для предотвращения обновления состояния после размонтирования компонента
 
     useEffect(() => {
-        // Флаг для отслеживания состояния подписки (активна или нет)
-        // и предотвращения обновления состояния после размонтирования компонента
-        let isSubscribed = true;
+        fetchMessages()
 
-        // Запускаем long polling
-        subscribe(isSubscribed);
-
-        return () => {
-            isSubscribed = false;  // Отписываемся при размонтировании компонента
-        };
+        return ()=> {
+            setIsMounted(false)
+        }
     }, []);
 
-    const subscribe = async (isSubscribed: boolean) => {
-        try {
-            if(!isSubscribed) return
+    const fetchMessages  = async () =>{
+        try{
+            const {data} = await axios.get(`${API_URL}/get-messages`, {headers: HEADERS});
 
-            // Загружаем сообщения
-            const {data} = await axios.get('http://localhost:5000/get-messages', {
-                headers: {
-                    'Cache-Control': 'no-cache',
-                    'Pragma': 'no-cache',
-                    'Expires': '0',
-                },
-            })
+            if (isMounted) {
+                setMessages(prevMessages => [...prevMessages, data]);
+                setTimeout(fetchMessages, 0); // Повторный вызов через 0 мс
+            }
 
-            // Фильтруем дубликаты сообщений
-            setMessages(prev => (
-                prev.some(msg => msg.id === data.id) ? prev : [data, ...prev]
-            ));
+        } catch (e){
+            console.log('Failed to fetch messages', e);
 
-            await subscribe(isSubscribed) // Рекурсивный вызов для продолжения long polling
-        } catch (error) {
-            console.error("Failed to load messages", error);
-            retry(() => subscribe(isSubscribed)) // Повторить попытку через 500 мс, если подписка всё ещё активна
+            if (isMounted) {
+                setTimeout(fetchMessages, RETRY_DELAY); // Повторный вызов через RETRY_DELAY мс
+            }
         }
-    };
-
-    const retry = (callback: () => void) => {
-        setTimeout(callback, RETRY_DELAY);  // Задержка для ретраев
-    };
+    }
 
     const onMessageChange = (e: ChangeEvent<HTMLInputElement>) => {
         setMessageValue(e.target.value);
