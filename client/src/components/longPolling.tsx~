@@ -20,7 +20,7 @@ const API_URL = 'http://localhost:5000';
 export const LongPolling = () => {
     const [messages, setMessages] = useState<Messages>([]);
     const [messageValue, setMessageValue] = useState<string>("");
-    const [isMounted, setIsMounted] = useState(true); // Для предотвращения обновления состояния после размонтирования компонента
+    const [isMounted, setIsMounted] = useState(true); //Для предотвращения обновления состояния после размонтирования компонента
 
     useEffect(() => {
         fetchMessages()
@@ -67,7 +67,7 @@ export const LongPolling = () => {
         };
 
         try {
-            await axios.post(`${API_URL}/new-messages`, newMessage);
+            await axios.post("http://localhost:5000/new-messages", newMessage);
             setMessageValue(""); // Очищаем input после отправки
         } catch (error) {
             console.error("Failed to send message", error);
