@@ -18,11 +18,7 @@ app.use(cors());
 app.use(express.json());
 
 //5. endpoints
-<<<<<<< HEAD
 // Получение сообщений через server-sent events
-=======
-// Получение сообщений через long-polling
->>>>>>> 6ca3747ea0483210e14baa26a9e7753d349b6cb8
 app.get('/connect', (req, res) => {
     res.writeHead(200, {
         'Connection': 'keep-alive',

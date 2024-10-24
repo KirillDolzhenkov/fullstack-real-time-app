@@ -1,29 +1,12 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
 import axios from "axios";
 
-interface EventSource {
-    new (url: string, eventSourceInitDict?: EventSourceInit): EventSource;
-    readonly url: string;
-    readonly readyState: number;
-    readonly withCredentials: boolean;
-    close(): void;
-    onopen: ((this: EventSource, ev: Event) => any) | null;
-    onmessage: ((this: EventSource, ev: MessageEvent) => any) | null;
-    onerror: ((this: EventSource, ev: Event) => any) | null;
-}
-
 interface iMessages {
     id: number;
     message: string;
 }
 
 type Messages = iMessages[];
-
-const HEADERS = {
-    'Cache-Control': 'no-cache',
-    'Pragma': 'no-cache',
-    'Expires': '0',
-}
 
 const RETRY_DELAY = 5000;
 const API_URL = 'http://localhost:5000';
