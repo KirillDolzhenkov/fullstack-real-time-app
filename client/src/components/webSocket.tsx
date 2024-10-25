@@ -55,11 +55,11 @@ export const WebSockets = () => {
     const onConnectUser = () => {
         console.log('Connection to server opened');
         setConnected(true);
-        const message = {
+        const message  = {
             event: 'connection',
             username,
             id: Date.now()
-        }
+        } as iMessage
         socket.current?.send(JSON.stringify(message))
     }
 
@@ -69,7 +69,7 @@ export const WebSockets = () => {
             message: messageValue,
             id: Date.now(),
             event: 'message'
-        }
+        } as iMessage
         socket.current?.send(JSON.stringify(message));
         setMessageValue('')
     };
