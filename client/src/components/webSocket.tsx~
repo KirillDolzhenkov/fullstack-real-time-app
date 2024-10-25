@@ -51,7 +51,7 @@ export const WebSockets = () => {
       fn();
     }
   };
-
+ 
   const onConnectUser = () => {
     console.log('Connection to server opened');
     setConnected(true);

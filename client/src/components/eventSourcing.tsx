@@ -1,26 +1,20 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import axios from 'axios';
 
-interface iMessages {
+interface iMessage {
   id: number;
   message: string;
 }
 
-type Messages = iMessages[];
-
-const HEADERS = {
-  'Cache-Control': 'no-cache',
-  Pragma: 'no-cache',
-  Expires: '0'
-};
+type Messages = iMessage[];
 
 const RETRY_DELAY = 5000;
 const API_URL = 'http://localhost:5000';
 
-export const LongPolling = () => {
+export const EventSourcing = () => {
   const [messages, setMessages] = useState<Messages>([]);
   const [messageValue, setMessageValue] = useState<string>('');
-  const [isMounted, setIsMounted] = useState(true); // Для предотвращения обновления состояния после размонтирования компонента
+  const [isMounted, setIsMounted] = useState(true); //Для предотвращения обновления состояния после размонтирования компонента
 
   useEffect(() => {
     fetchMessages();
@@ -31,20 +25,25 @@ export const LongPolling = () => {
   }, []);
 
   const fetchMessages = async () => {
-    try {
-      const { data } = await axios.get(`${API_URL}/get-messages`, { headers: HEADERS });
+    const eventSource = new EventSource(`${API_URL}/connect`);
 
-      if (isMounted) {
-        setMessages((prevMessages) => [...prevMessages, data]);
-        setTimeout(fetchMessages, 0); // Повторный вызов через 0 мс
-      }
-    } catch (e) {
+    eventSource.onopen = () => {
+      console.log('Connection to server opened');
+    };
+
+    eventSource.onmessage = (event: MessageEvent) => {
+      if (!isMounted) return; // Проверка флага перед обновлением состояния
+      const newMessage = JSON.parse(event.data);
+      console.log('New message received:', newMessage);
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    };
+
+    eventSource.onerror = (e: Event) => {
       console.log('Failed to fetch messages', e);
+      eventSource.close(); // Закрываем соединение при ошибке
 
-      if (isMounted) {
-        setTimeout(fetchMessages, RETRY_DELAY); // Повторный вызов через RETRY_DELAY мс
-      }
-    }
+      setTimeout(fetchMessages, RETRY_DELAY); // Повторная попытка через RETRY_DELAY мс
+    };
   };
 
   const onMessageChange = (e: ChangeEvent<HTMLInputElement>) => {
