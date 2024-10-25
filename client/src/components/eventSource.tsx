@@ -1,12 +1,12 @@
 import React, { ChangeEvent, useEffect, useState } from "react";
 import axios from "axios";
 
-interface iMessages {
+interface iMessage {
     id: number;
     message: string;
 }
 
-type Messages = iMessages[];
+type Messages = iMessage[];
 
 const RETRY_DELAY = 5000;
 const API_URL = 'http://localhost:5000';

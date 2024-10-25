@@ -1,11 +1,11 @@
 import './App.css'
-import {EventSource} from "@/components/eventSource";
+import {WebSockets} from "@/components/webSocket";
 
 function App() {
 
   return (
     <>
-      <EventSource/>
+      <WebSockets/>
     </>
   )
 }
