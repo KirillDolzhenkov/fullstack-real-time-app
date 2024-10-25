@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useRef, useState } from 'react';
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 
 type EventType = 'connection' | 'message';
 
@@ -20,6 +20,12 @@ export const WebSockets = () => {
   const socket = useRef<WebSocket>();
   const [connected, setConnected] = useState(false);
   const [username, setUsername] = useState('');
+
+  useEffect(() => {
+    return () => {
+      socket.current?.close();
+    };
+  }, []);
 
   const connect = async () => {
     socket.current = new WebSocket(`${WS_API_URL}`);
