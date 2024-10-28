@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon websocket.js"
+    "start": "nodemon websockets.js"
   },
   "keywords": [],
   "author": "",

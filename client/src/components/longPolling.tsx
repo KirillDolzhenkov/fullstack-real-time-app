@@ -22,9 +22,11 @@ export const LongPolling = () => {
   const [messageValue, setMessageValue] = useState<string>('');
   const [isMounted, setIsMounted] = useState(true); // Для предотвращения обновления состояния после размонтирования компонента
 
+  // При монтировании компонента подключаемся к серверу
   useEffect(() => {
     fetchMessages();
 
+    // Очищаем интервал при размонтировании
     return () => {
       setIsMounted(false);
     };

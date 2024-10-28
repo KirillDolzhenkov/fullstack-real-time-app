@@ -34,7 +34,6 @@ export const EventSourcing = () => {
     };
     connect();
 
-    // При размонтировании компонента закрываем подключение к серверу
     return () => {
       eventSource.close();
     };

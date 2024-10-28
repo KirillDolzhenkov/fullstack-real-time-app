@@ -22,6 +22,7 @@ export const WebSockets = () => {
   const [username, setUsername] = useState('');
 
   useEffect(() => {
+    // При размонтировании компонента отключаемся от сервера
     return () => {
       socket.current?.close();
     };

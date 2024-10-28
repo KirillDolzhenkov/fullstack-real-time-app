@@ -32,9 +32,11 @@ export const ShortPolling = () => {
   const fetchMessages = async () => {
     try {
       const { data } = await axios.get(`${API_URL}/get-messages`, { headers: HEADERS });
-      setMessages(data); // Обновляем сообщения, полученные с сервера
+      setMessages((prevMessages) => [...prevMessages, data]); // Обновляем сообщения, полученные с сервера
     } catch (e) {
       console.log('Failed to fetch messages', e);
+
+      setTimeout(fetchMessages, POLLING_INTERVAL);
     }
   };
 
